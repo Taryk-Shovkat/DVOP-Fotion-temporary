@@ -1,0 +1,209 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Fotion IOT API",
+    "description": "The API for the Fotion IOT project",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://virtserver.swaggerhub.com/SPACEWOLF129/DVOP/1.0.0",
+      "description": "SwaggerHub API Auto Mocking"
+    },
+    {
+      "url": "https://your-api-server.com",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/page/{pageID}": {
+      "get": {
+        "tags": [
+          "Page"
+        ],
+        "summary": "Get page details",
+        "description": "Retrieves the details of a page including its blocks",
+        "operationId": "getPage",
+        "parameters": [
+          {
+            "name": "pageID",
+            "in": "path",
+            "description": "ID of the page to retrieve",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user-id",
+            "in": "header",
+            "description": "User ID of the requester",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved page details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Page not found"
+          }
+        }
+      }
+    },
+    "/page": {
+      "post": {
+        "tags": [
+          "Page"
+        ],
+        "summary": "Create a new page",
+        "description": "Creates a new page with an initial text block",
+        "operationId": "createPage",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewPage"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pages": {
+      "get": {
+        "tags": [
+          "Page"
+        ],
+        "summary": "Get all pages for a user",
+        "description": "Retrieves all pages accessible by a user",
+        "operationId": "getPages",
+        "parameters": [
+          {
+            "name": "user-id",
+            "in": "header",
+            "description": "User ID of the requester",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved pages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Page"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Page": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the page"
+          },
+          "title": {
+            "type": "string",
+            "description": "The title of the page"
+          },
+          "blocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Block"
+            }
+          }
+        }
+      },
+      "Block": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the block"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of block (e.g., TEXT, IMAGE)"
+          },
+          "text_type": {
+            "type": "string",
+            "description": "The text type (e.g., H1, P) for text blocks"
+          },
+          "content": {
+            "type": "string",
+            "description": "The content of the block"
+          },
+          "order": {
+            "type": "integer",
+            "description": "The order of the block in the page"
+          }
+        }
+      },
+      "NewPage": {
+        "required": [
+          "title",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the new page"
+          },
+          "userId": {
+            "type": "string",
+            "description": "The ID of the user creating the page"
+          },
+          "initialContent": {
+            "type": "string",
+            "description": "The initial content for the new page's first block",
+            "example": ""
+          }
+        }
+      }
+    }
+  }
+}

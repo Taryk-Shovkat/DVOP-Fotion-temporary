@@ -1,0 +1,372 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Fotion IOT API",
+    "description": "The API for the Fotion IOT project",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://virtserver.swaggerhub.com/SPACEWOLF129/DVOP/1.0.0",
+      "description": "SwaggerHub API Auto Mocking"
+    },
+    {
+      "url": "https://your-api-server.com",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/auth/google": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Google OAuth authentication",
+        "description": "Authenticate a user using Google OAuth and return the user information.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/auth_google_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully authenticated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch user info"
+          }
+        }
+      }
+    },
+    "/page/{pageID}": {
+      "get": {
+        "tags": [
+          "Page"
+        ],
+        "summary": "Get page details",
+        "description": "Retrieves the details of a page including its blocks",
+        "operationId": "getPage",
+        "parameters": [
+          {
+            "name": "pageID",
+            "in": "path",
+            "description": "ID of the page to retrieve",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user-id",
+            "in": "header",
+            "description": "User ID of the requester",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved page details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User not found"
+          },
+          "404": {
+            "description": "Page not found"
+          }
+        }
+      }
+    },
+    "/page/{pageID}/user": {
+      "get": {
+        "tags": [
+          "Page"
+        ],
+        "summary": "Get users with access to a page",
+        "description": "Retrieves the users who have access to a specific page",
+        "operationId": "getPageUsers",
+        "parameters": [
+          {
+            "name": "pageID",
+            "in": "path",
+            "description": "ID of the page",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user-id",
+            "in": "header",
+            "description": "User ID of the requester",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserBasic"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User not found"
+          },
+          "404": {
+            "description": "Page not found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Page"
+        ],
+        "summary": "Add a user to a page",
+        "description": "Adds a user to a page based on the user's email",
+        "operationId": "addPageUser",
+        "parameters": [
+          {
+            "name": "pageID",
+            "in": "path",
+            "description": "ID of the page",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user-id",
+            "in": "header",
+            "description": "User ID of the requester",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/pageID_user_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully added user to page"
+          },
+          "401": {
+            "description": "User not found"
+          },
+          "404": {
+            "description": "Page or user not found"
+          }
+        }
+      }
+    },
+    "/page": {
+      "get": {
+        "tags": [
+          "Page"
+        ],
+        "summary": "Get all pages for a user",
+        "description": "Retrieves all pages accessible by a user",
+        "operationId": "getPages",
+        "parameters": [
+          {
+            "name": "user-id",
+            "in": "header",
+            "description": "User ID of the requester",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved pages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Page"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Page": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the page"
+          },
+          "title": {
+            "type": "string",
+            "description": "The title of the page"
+          },
+          "blocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Block"
+            }
+          }
+        }
+      },
+      "Block": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the block"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of block (e.g., TEXT, IMAGE)"
+          },
+          "text_type": {
+            "type": "string",
+            "description": "The text type (e.g., H1, P) for text blocks"
+          },
+          "content": {
+            "type": "string",
+            "description": "The content of the block"
+          },
+          "order": {
+            "type": "integer",
+            "description": "The order of the block in the page"
+          }
+        }
+      },
+      "NewPage": {
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the new page"
+          },
+          "initialContent": {
+            "type": "string",
+            "description": "The initial content for the new page's first block",
+            "example": ""
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier for the user"
+          },
+          "providerId": {
+            "type": "string",
+            "description": "The provider ID for the user"
+          },
+          "email": {
+            "type": "string",
+            "description": "The email of the user"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the user"
+          }
+        }
+      },
+      "UserBasic": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the user"
+          },
+          "email": {
+            "type": "string",
+            "description": "The email of the user"
+          }
+        }
+      },
+      "auth_google_body": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "The Google OAuth token"
+          }
+        }
+      },
+      "pageID_user_body": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email of the user to add"
+          }
+        }
+      }
+    }
+  }
+}
