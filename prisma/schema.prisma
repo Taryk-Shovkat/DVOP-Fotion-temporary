@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = "postgresql://postgres:admin@localhost:5432/fotion_test_database"
+}
+
+model sensors_read {
+  id          String   @id @default(uuid())
+  ec          Float?
+  ph          Float?
+  temperature Float?
+  distance    Float?
+  time        DateTime @default(now())
+}
+
+model projectors_order {
+  id             String                  @id @default(uuid())
+  paymentSuccess Boolean                 @default(false)
+  stripeId       String                  @unique
+  packeta        Json
+  note           String?
+  customerId     String                  @unique
+  customer       projectors_customer     @relation(fields: [customerId], references: [id])
+  orderItems     projectors_order_item[]
+  discountID     String?
+  discount       projectors_discount?    @relation(fields: [discountID], references: [id])
+}
+
+model projectors_customer {
+  id      String            @id @default(uuid())
+  name    String
+  surname String
+  email   String
+  phone   String
+  address String
+  city    String
+  zip     String
+  order   projectors_order?
+}
+
+model projectors_order_item {
+  id       String           @id @default(uuid())
+  orderId  String
+  order    projectors_order @relation(fields: [orderId], references: [id])
+  itemId   String
+  item     projectors_item  @relation(fields: [itemId], references: [id])
+  quantity Int
+}
+
+model projectors_item {
+  id         String                  @id @default(uuid())
+  name       String
+  price      Float
+  orderItems projectors_order_item[]
+}
+
+model projectors_discount {
+  id               String             @id @default(uuid())
+  code             String             @unique
+  discount         Float
+  deliveryDiscount Float
+  orders           projectors_order[]
+}
+
+model fotion_page {
+  id     String         @id @default(uuid())
+  title  String
+  blocks fotion_block[]
+  users  fotion_user[]
+}
+
+model fotion_block {
+  id        String      @id @default(uuid())
+  order     Int
+  type      BlockType   @default(TEXT)
+  content   String?
+  text_type TextType?   @default(P)
+  page      fotion_page @relation(fields: [pageId], references: [id])
+  pageId    String
+}
+
+model fotion_user {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String
+  provider     AuthProvider
+  providerId   String        @unique // ID from the OAuth provider
+  accessToken  String?       @unique // Optional, for storing OAuth access token
+  refreshToken String?       @unique // Optional, for storing OAuth refresh token
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  fotionPages  fotion_page[]
+}
+
+enum BlockType {
+  TEXT
+  IMAGE
+  VIDEO
+}
+
+enum TextType {
+  H1
+  H2
+  H3
+  P
+}
+
+enum AuthProvider {
+  GOOGLE
+  X
+}
